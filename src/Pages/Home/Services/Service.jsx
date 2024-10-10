@@ -4,15 +4,29 @@ import ServiceCard from "./ServiceCard";
 import calendar from "../../../assets/icons/calendar.png";
 import location from "../../../assets/icons/location.png";
 import call from "../../../assets/icons/call.png";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 const Service = () => {
+  const axiosSecure = useAxiosSecure();
   const [services, setServices] = useState([]);
+  const [asc, setAsc] = useState(true);
+  const [search, setSearch] = useState("");
   useEffect(() => {
-    fetch("https://cars-doctor-server-kappa.vercel.app/services")
-      .then((res) => res.json())
-      .then((data) => setServices(data));
-  }, []);
+    // fetch("https://cars-doctor-server-kappa.vercel.app/services")
+    //   .then((res) => res.json())
+    //   .then((data) => setServices(data));
+    axiosSecure
+      .get(`/services?sort=${asc ? "asc" : "des"}&search=${search}`)
+      .then((res) => setServices(res.data));
+  }, [axiosSecure, asc, search]);
   console.log(services);
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const search = event.target.search.value;
+    console.log(search);
+    setSearch(search);
+  };
+
   return (
     <div className="my-10">
       <div className="text-center">
@@ -25,6 +39,23 @@ const Service = () => {
           humour, or randomised words which do not look even slightly
           believable.
         </p>
+        <div className="flex justify-between">
+          <form onSubmit={handleSearch} className="join">
+            <input
+              name="search"
+              className="input input-bordered join-item"
+              placeholder="Search here....."
+            />
+            <input
+              className="btn btn-secondary join-item rounded-r-full"
+              type="submit"
+              value="Search"
+            />
+          </form>
+          <button onClick={() => setAsc(!asc)} className="btn btn-secondary">
+            {asc ? "Price: High to Low" : "Price: Low to High"}
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 my-12 lg:grid-cols-3 gap-6">
           {services.map((service) => (
